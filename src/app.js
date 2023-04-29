@@ -1,64 +1,61 @@
 const express = require('express');
+const session = require('express-session');
 var cors = require('cors');
-const jwt = require('jsonwebtoken');
-var productRouter = require('./routes/productRoute');
-
 const passport = require('passport');
-const db = require('./db');
+
+// const db = require('./db');
+require('./auth');
 const app = express();
+app.use(session({ secret: 'cats' }));
 app.use(cors());
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
-require('./passportConfig')(passport);
-app.use('/product', productRouter);
+app.use(passport.initialize());
+app.use(passport.session());
+function isLoggedIn(req, res, next) {
+  req.user ? next() : res.sendStatus(401);
+}
 
-const PORT = 3000;
-app.post(
-  '/auth/signup',
-  passport.authenticate('local-signup', { session: false }),
-  (req, res, next) => {
-    // sign up
-    console.log(req.user);
-    res.json({
-      user: req.user,
-    });
-  }
-);
-app.post(
-  '/auth/login',
-  passport.authenticate('local-login', { session: false }),
-  (req, res, next) => {
-    // login
-    jwt.sign(
-      { user: req.user },
-      'secretKey',
-      { expiresIn: '1h' },
-      (err, token) => {
-        if (err) {
-          return res.json({
-            message: 'Failed to login',
-            token: null,
-          });
-        }
-        res.json({
-          token,
-        });
-      }
-    );
-  }
+const PORT = 5001;
+app.get('/', (req, res, next) => {
+  res.send('<a href="auth/google">Authenticate with Google</a>');
+});
+app.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['email', 'profile'] })
 );
 app.get(
-  '/user/protected',
-  passport.authenticate('jwt', { session: false }),
-  (req, res, next) => {
-    res.json({ user: req.user });
-  }
+  '/google/callback',
+  passport.authenticate('google', {
+    successRedirect: '/protected',
+    failureRedirect: '/auth/failure',
+  })
 );
+app.get('/auth/failure', (req, res) => {
+  res.send('authentication failed');
+});
+app.get('/protected', isLoggedIn, (req, res) => {
+  res.send(`hello ${req.user.displayName}`);
+});
+
+app.get('/logout', function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    req.session.destroy();
+    res.send('logged out');
+    // res.redirect('/');
+  });
+});
+// app.get('/logout', (req, res) => {
+//   req.logout();
+//   req.session.destroy();
+//   res.send('logged out');
+// });
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
-
-console.log('Hello World');
