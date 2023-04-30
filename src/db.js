@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 // mongoose.Promise = global.Promise;
-const dbUrl = 'mongodb://127.0.0.1:27017/user-ecomm-passport2';
+const dbUrl = 'mongodb://127.0.0.1:27017/jwt-ecommerce';
 mongoose
   .connect(dbUrl, {
     useNewUrlParser: true,
