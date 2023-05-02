@@ -44,7 +44,9 @@ router.post('/cart', Auth, async (req, res) => {
 
       if (itemIndex > -1) {
         let product = cart.items[itemIndex];
-        product.quantity += quantity;
+
+        product.quantity = parseInt(quantity) + parseInt(product.quantity);
+        console.log(product.quantity);
 
         cart.bill = cart.items.reduce((acc, curr) => {
           return acc + curr.quantity * curr.price;

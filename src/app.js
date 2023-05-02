@@ -2,6 +2,7 @@ const express = require('express');
 const userRouter = require('./routers/user');
 const itemRouter = require('./routers/item');
 const cartRouter = require('./routers/cart');
+const orderRouter = require('./routers/order');
 
 var cors = require('cors');
 require('dotenv').config();
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(userRouter);
 app.use(itemRouter);
 app.use(cartRouter);
+app.use(orderRouter);
 
 const PORT = 5001;
 
