@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 // mongoose.Promise = global.Promise;
-const dbUrl = 'mongodb://127.0.0.1:27017/jwt-ecommerce';
+const dbUrl = 'mongodb://127.0.0.1:27017/jwt-ecommerce-multer-image';
 mongoose
   .connect(dbUrl, {
     useNewUrlParser: true,

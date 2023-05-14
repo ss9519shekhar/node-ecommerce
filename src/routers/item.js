@@ -1,8 +1,32 @@
 const express = require('express');
 const Item = require('../models/item');
 const Auth = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
 
 const router = new express.Router();
+
+router.use(express.static(__dirname + '/public'));
+router.use('/photos', express.static('public/uploads'));
+
+var storage = multer.diskStorage({
+  destination: './public/uploads/',
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      file.fieldname + '_' + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+var upload = multer({
+  storage: storage,
+}).single('file');
+
+// router.post('/upload', upload, (req, res, next) => {
+//   const imageFile = req.file.filename;
+//   console.log(imageFile);
+//   res.send('image uploaded');
+// });
 
 //fetch all items
 router.get('/items', Auth, async (req, res) => {
@@ -38,10 +62,11 @@ router.get('/items/:id', Auth, async (req, res) => {
 });
 
 //create an item
-router.post('/items', Auth, async (req, res) => {
+router.post('/items', Auth, upload, async (req, res) => {
   try {
     const newItem = new Item({
       ...req.body,
+      image: req.file.filename,
       owner: req.user._id,
     });
     await newItem.save();

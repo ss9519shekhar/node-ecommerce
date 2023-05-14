@@ -18,6 +18,8 @@ app.use(itemRouter);
 app.use(cartRouter);
 app.use(orderRouter);
 
+console.log('jai mata di');
+
 const PORT = 5001;
 
 app.listen(PORT, () => {
